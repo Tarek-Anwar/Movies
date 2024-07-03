@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/main_fragment">
+    <fragment
+        android:id="@+id/main_fragment"
+        android:name="com.example.movies.ui.fragment.main.MainFragment" />
+
+    <fragment
+        android:id="@+id/search_Fragment"
+        android:name="com.example.movies.ui.fragment.search.SearchFragment" />
+    <fragment
+        android:id="@+id/movie_details_fragment"
+        android:name="com.example.movies.ui.fragment.detalis.MovieDetailsFragment" />
+</navigation>
