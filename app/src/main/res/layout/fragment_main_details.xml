@@ -128,7 +128,7 @@
                     android:drawableStart="@drawable/calendarblank"
                     android:drawablePadding="6dp"
                     android:fontFamily="@font/montserrat_semibold"
-                    android:paddingv="8dp"
+                    android:padding="8dp"
                     android:textColor="@color/gray"
                     tools:text="1972-03-14" />
 

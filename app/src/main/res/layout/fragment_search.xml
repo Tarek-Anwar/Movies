@@ -71,11 +71,48 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_edittext"
             tools:listitem="@layout/movie_item_search_rv" />
 
+        <LinearLayout
+            android:id="@+id/no_search_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_edittext">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/no_results_1" />
+
+            <TextView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_semibold"
+                android:gravity="center"
+                android:text="@string/we_are_sorry"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="180dp"
+
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:fontFamily="@font/montserrat_semibold"
+                android:gravity="center"
+                android:text="@string/find_your_movie"
+                android:textColor="@color/gray"
+                android:textSize="12sp" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

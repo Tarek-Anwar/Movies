@@ -5,12 +5,28 @@
     app:startDestination="@id/main_fragment">
     <fragment
         android:id="@+id/main_fragment"
-        android:name="com.example.movies.ui.fragment.main.MainFragment" />
+        android:name="com.example.movies.ui.fragment.main.MainFragment">
+        <action
+            android:id="@+id/action_main_fragment_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
+        <action
+            android:id="@+id/action_main_fragment_to_search_Fragment"
+            app:destination="@id/search_Fragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/search_Fragment"
-        android:name="com.example.movies.ui.fragment.search.SearchFragment" />
+        android:name="com.example.movies.ui.fragment.search.SearchFragment">
+        <argument
+            android:name="id"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/movie_details_fragment"
-        android:name="com.example.movies.ui.fragment.detalis.MovieDetailsFragment" />
+        android:name="com.example.movies.ui.fragment.detalis.MovieDetailsFragment" >
+        <argument
+            android:name="id"
+            app:argType="string"
+            android:defaultValue="0" />
+    </fragment>
 </navigation>
