@@ -17,16 +17,13 @@
     <fragment
         android:id="@+id/search_Fragment"
         android:name="com.example.movies.ui.fragment.search.SearchFragment">
-        <argument
-            android:name="id"
-            app:argType="string" />
+
     </fragment>
     <fragment
         android:id="@+id/movie_details_fragment"
         android:name="com.example.movies.ui.fragment.detalis.MovieDetailsFragment" >
         <argument
             android:name="id"
-            app:argType="string"
-            android:defaultValue="0" />
+            app:argType="integer" />
     </fragment>
 </navigation>

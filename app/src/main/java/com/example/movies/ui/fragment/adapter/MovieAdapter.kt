@@ -1,7 +1,5 @@
 package com.example.movies.ui.fragment.adapter
 
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -9,9 +7,10 @@ import com.bumptech.glide.Glide
 import com.example.movies.databinding.MovieItemRvBinding
 import com.example.movies.domain.entity.MovieModel
 
-class MovieAdapter(private val movieItemListener: MovieItemListener) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
+class MovieAdapter(private val movieItemListener: MovieItemListener) :
+    RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
 
-    var arrayList = listOf<MovieModel>()
+    var movieModelLocalList = listOf<MovieModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -20,13 +19,12 @@ class MovieAdapter(private val movieItemListener: MovieItemListener) : RecyclerV
         return ViewHolder(itemBinding)
     }
 
-    override fun getItemCount() = arrayList.size
+    override fun getItemCount() = movieModelLocalList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // holder.bind(arrayList.get(position))
-        holder.bind(arrayList.get(position))
+        holder.bind(movieModelLocalList.get(position))
         holder.itemView.setOnClickListener {
-            movieItemListener.onItemClick(arrayList.get(position).id)
+            movieModelLocalList.get(position).id?.let { it1 -> movieItemListener.onItemClick(it1) }
         }
     }
 

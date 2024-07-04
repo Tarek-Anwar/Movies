@@ -1,7 +1,11 @@
 package com.example.movies.domain.entity
 
-data class MovieModel(
-    val id: Int? = null,
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "movies")
+data class MovieModelLocal(
+    @PrimaryKey val id: Int? = null,
     val name: String,
     val backdropPath: String,
     val posterPath: String,
@@ -10,6 +14,6 @@ data class MovieModel(
     val overview: String = "",
     val releaseDate: String = "",
     val originalLanguage: String,
-    val isPopular: Boolean,
+    val isPopular: Boolean ,
     val isTopRated: Boolean,
-)
+    )

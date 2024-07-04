@@ -1,53 +1,46 @@
 package com.example.movies.ui.fragment.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movies.data.remote.ApiService
-import com.example.movies.domain.entity.MoviesResponse
-import com.example.movies.listOfMovies
+import com.example.movies.domain.usecase.GetMoviesPopularUserCase
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Inject
 
+class MainViewModel @Inject constructor() : ViewModel() {
 
-class MainViewModel : ViewModel() {
+    private val useCase = GetMoviesPopularUserCase()
 
-    private var apiService: ApiService
-
-    private val _moviesState: MutableStateFlow<MoviesResponse?> = MutableStateFlow(null)
-    val moviesState: StateFlow<MoviesResponse?> = _moviesState
+    private val _moviesState: MutableStateFlow<MovieScreenState?> = MutableStateFlow(
+        MovieScreenState(
+            emptyList(),
+            true,
+            null
+        )
+    )
+    val moviesState: StateFlow<MovieScreenState?> = _moviesState
 
     private val errorHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
+        _moviesState.value = _moviesState.value?.copy(
+            isLoading = false,
+            error = throwable.message
+        )
     }
 
     init {
-        val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("https://api.themoviedb.org/3/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        apiService = retrofit.create(ApiService::class.java)
-
-        getMovies2()
+        getMovies()
     }
 
-    fun getMovies() = listOfMovies
-    fun getMovies2() {
-        viewModelScope.launch(errorHandler) {
-            val movies = getPopularMovies()
-            _moviesState.value = movies
+    private fun getMovies() {
+        viewModelScope.launch(errorHandler)
+        {
+            val movies = useCase()
+            _moviesState.value = _moviesState.value?.copy(movies, false)
         }
     }
-
-    private suspend fun getPopularMovies() =
-        withContext(Dispatchers.IO) { apiService.getPopularMovies() }
-
-    private val TAG = "MainViewModel"
 
 }

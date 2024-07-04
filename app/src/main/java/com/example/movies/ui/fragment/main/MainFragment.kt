@@ -9,9 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.movies.R
 import com.example.movies.databinding.FragmentMainBinding
 import com.example.movies.ui.fragment.adapter.MovieAdapter
 import kotlinx.coroutines.launch
@@ -19,6 +17,7 @@ import kotlinx.coroutines.launch
 class MainFragment : Fragment() {
     private var binding: FragmentMainBinding? = null
     private val viewModel: MainViewModel by viewModels()
+    private lateinit var adapter: MovieAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,35 +29,69 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val movies = viewModel.getMovies2()
 
-        val adapter = MovieAdapter(object : MovieAdapter.MovieItemListener {
+        binding!!.textSearch.setOnClickListener { navigateToSearchFragment() }
+        initRecyclerView()
+
+        lifecycleScope.launch {
+            viewModel.moviesState.collect { state ->
+                if (state!!.isLoading) {
+                    if (state.error == null) {
+                     loadingProcess()
+                    } else {
+                        errorProcess(state.error!!)
+                    }
+                } else {
+                    movieSussessfly()
+                    state?.let {
+                        adapter.movieModelLocalList = state.moviesList!!
+                        adapter.notifyDataSetChanged()
+
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun loadingProcess(){
+        binding!!.progressBar.visibility = View.VISIBLE
+        binding!!.rvMovies.visibility = View.GONE
+        binding!!.errorTextMain.visibility = View.GONE
+    }
+
+    private fun errorProcess(massage: String){
+        binding!!.progressBar.visibility = View.GONE
+        binding!!.rvMovies.visibility = View.GONE
+        binding!!.errorTextMain.visibility = View.VISIBLE
+        binding!!.errorTextMain.text = massage
+        Log.d(TAG, "onViewCreated: ${massage} ")
+    }
+
+    private fun movieSussessfly() {
+        binding!!.progressBar.visibility = View.GONE
+        binding!!.errorTextMain.visibility = View.GONE
+        binding!!.rvMovies.visibility = View.VISIBLE
+    }
+    private  val TAG = "MainFragment"
+    private fun navigateToDetailFragment(id: Int) {
+        val action = MainFragmentDirections.actionMainFragmentToMovieDetailsFragment(id)
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun navigateToSearchFragment() {
+        val action = MainFragmentDirections.actionMainFragmentToSearchFragment()
+        Navigation.findNavController(requireView()).navigate(action)
+    }
+
+    private fun initRecyclerView() {
+        adapter = MovieAdapter(object : MovieAdapter.MovieItemListener {
             override fun onItemClick(position: Int) {
-                navigateToWordFragment(position)
+                navigateToDetailFragment(position)
             }
         })
         binding?.rvMovies?.adapter = adapter
         binding?.rvMovies?.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        //  adapter.arrayList = viewModel.getMovies()
-
-        lifecycleScope.launch {
-            viewModel.moviesState.collect { movies ->
-                movies?.let {
-                    Log.d(TAG, "onViewCreated test: " + it.movies.size)
-                    Log.d(TAG, "onViewCreated test: " + it.movies.get(1).posterPath)
-                    adapter.arrayList = movies.movies
-                    adapter.notifyDataSetChanged()
-                }
-            }
-        }
-
     }
-    private fun navigateToWordFragment(id: Int) {
-        val action = MainFragmentDirections.actionMainFragmentToMovieDetailsFragment(id.toString())
-        Navigation.findNavController(requireView()).navigate(action)
-
-    }
-
-    private val TAG = "MainFragment"
 }
