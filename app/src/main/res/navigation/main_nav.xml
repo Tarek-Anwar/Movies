@@ -18,6 +18,9 @@
         android:id="@+id/search_Fragment"
         android:name="com.example.movies.ui.fragment.search.SearchFragment">
 
+        <action
+            android:id="@+id/action_search_Fragment_to_movie_details_fragment"
+            app:destination="@id/movie_details_fragment" />
     </fragment>
     <fragment
         android:id="@+id/movie_details_fragment"

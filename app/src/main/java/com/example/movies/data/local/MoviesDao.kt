@@ -8,8 +8,6 @@ import com.example.movies.domain.entity.MovieModelLocal
 
 @Dao
 interface MoviesDao {
-    @Query("SELECT * FROM movies ORDER BY id ASC LIMIT :limit OFFSET :offset")
-    suspend fun getMovies(limit: Int, offset: Int): List<MovieModelLocal>
 
     @Query("SELECT * FROM movies")
     suspend fun getAllMovies(): List<MovieModelLocal>
@@ -26,6 +24,4 @@ interface MoviesDao {
     @Query("SELECT * FROM movies WHERE id = :movieId")
     suspend fun getMovieById(movieId: Int): MovieModelLocal?
 
-    @Query("SELECT * FROM movies WHERE isPopular = 1")
-    suspend fun getAllPopularMovies(): List<MovieModelLocal>
 }

@@ -15,7 +15,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
@@ -27,15 +26,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient): ApiService {
         return Retrofit.Builder()
             .baseUrl("https://api.themoviedb.org/3/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
-            .build()
+            .build().create(ApiService::class.java)
     }
 
-    @Provides
-    fun provideApiService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
 
 }

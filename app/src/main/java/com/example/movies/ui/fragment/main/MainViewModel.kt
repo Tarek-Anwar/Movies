@@ -1,46 +1,49 @@
 package com.example.movies.ui.fragment.main
 
-import android.util.Log
+import android.os.Parcelable
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.movies.domain.usecase.GetMoviesPopularUserCase
-import kotlinx.coroutines.CoroutineExceptionHandler
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.example.movies.data.repo.MoviesRepositoryImpl
+import com.example.movies.domain.entity.MovieModelRemote
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor() : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val repo: MoviesRepositoryImpl,
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-    private val useCase = GetMoviesPopularUserCase()
+  /*   val pagingDataFlow = MutableStateFlow<PagingData<MovieModelRemote>?>(null)
 
-    private val _moviesState: MutableStateFlow<MovieScreenState?> = MutableStateFlow(
-        MovieScreenState(
-            emptyList(),
-            true,
-            null
-        )
-    )
-    val moviesState: StateFlow<MovieScreenState?> = _moviesState
+    var recyclerViewState: Parcelable? = null
+*/
 
-    private val errorHandler = CoroutineExceptionHandler { _, throwable ->
-        throwable.printStackTrace()
-        _moviesState.value = _moviesState.value?.copy(
-            isLoading = false,
-            error = throwable.message
-        )
-    }
+    private val _selectedTabPosition =
+        MutableStateFlow(savedStateHandle.get("selected_tab_position") ?: 0)
+    val selectedTabPosition: StateFlow<Int> get() = _selectedTabPosition
 
-    init {
-        getMovies()
-    }
-
-    private fun getMovies() {
-        viewModelScope.launch(errorHandler)
-        {
-            val movies = useCase()
-            _moviesState.value = _moviesState.value?.copy(movies, false)
+    fun saveSelectedTabPosition(position: Int) {
+        viewModelScope.launch {
+            _selectedTabPosition.value = position
+            savedStateHandle.set("selected_tab_position", position)
         }
     }
+
+     fun getCustomMovies(query: String) = Pager(
+        config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+        pagingSourceFactory = { repo.getCustomMovies(query) }
+    ).flow.cachedIn(viewModelScope)
+
+
 
 }
