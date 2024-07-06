@@ -14,6 +14,5 @@ data class MovieModelLocal(
     val overview: String = "",
     val releaseDate: String = "",
     val originalLanguage: String,
-    val isPopular: Boolean ,
-    val isTopRated: Boolean,
+    val type: Int = 0,
     )

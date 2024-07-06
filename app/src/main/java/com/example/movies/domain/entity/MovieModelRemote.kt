@@ -2,6 +2,7 @@ package com.example.movies.domain.entity
 
 import com.google.gson.annotations.SerializedName
 
+
 data class MovieModelRemote(
     val adult: Boolean,
     @SerializedName("backdrop_path")

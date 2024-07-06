@@ -11,10 +11,13 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.bumptech.glide.Glide
-import com.example.movies.databinding.FragmentMainDetailsBinding
-import com.example.movies.domain.entity.MovieModel
-import com.example.movies.domain.entity.MovieModelX
+import com.example.movies.R
+import com.example.movies.data.util.IMAGE_BASE_URL
+import com.example.movies.databinding.FragmentMovieDetailsBinding
+import com.example.movies.domain.entity.MovieDetailModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -22,7 +25,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MovieDetailsFragment : Fragment() {
-    private var binding: FragmentMainDetailsBinding? = null
+    private var binding: FragmentMovieDetailsBinding? = null
     private val viewModel: MovieDetailsViewModel by viewModels()
     val args: MovieDetailsFragmentArgs by navArgs()
 
@@ -30,14 +33,13 @@ class MovieDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentMainDetailsBinding.inflate(inflater, container, false)
+        binding = FragmentMovieDetailsBinding.inflate(inflater, container, false)
         viewModel.getMovieDetail(args.id)
         return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         movieDetailsObserver()
         handelBackPressed()
@@ -46,30 +48,36 @@ class MovieDetailsFragment : Fragment() {
     private fun handelBackPressed() {
         binding!!.backImage.setOnClickListener {
             findNavController().navigateUp()
-
         }
     }
 
-    private fun setData(movie: MovieModelX) {
+    private fun setData(movie: MovieDetailModel) {
         binding!!.overviewMovieTv.text = movie.overview
-        binding!!.releaseDateTv.text = movie.release_date
-        binding!!.titleMovieTv.text = movie.original_title
-        binding!!.adultMovieTv.text = movie.adult.toString()
-        binding!!.rateMovie.text = movie.vote_average.toString()
-        binding!!.originalLanguageMovie.text = movie.original_language
+        binding!!.releaseDateTv.text = movie.releaseDate
+        binding!!.titleMovieTv.text = movie.originalTitle
+        binding!!.adultMovieTv.text = movie.isAdult.toString()
+        binding!!.rateMovie.text = movie.voteAverage.toString()
+        binding!!.originalLanguageMovie.text = movie.originalLanguage
         Glide.with(requireContext())
-            .load("https://image.tmdb.org/t/p/w500" + movie.poster_path)
+            .load(IMAGE_BASE_URL+movie.posterPath)
             .into(binding!!.posterMovieImg)
         Glide.with(requireContext())
-            .load("https://image.tmdb.org/t/p/w500" + movie.backdrop_path)
+            .load(IMAGE_BASE_URL+movie.backdropPath)
             .into(binding!!.backdropMovieImg)
+        //binding!!.backdropMovieImg.load(IMAGE_BASE_URL+movie.backdropPath)
+        //binding!!.posterMovieImg.load(IMAGE_BASE_URL+movie.posterPath)
+
+
     }
 
     private fun movieDetailsObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.movieModelXStateFlow.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collectLatest {
-                setData(it)
-            }
+            viewModel.movieModelXStateFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collectLatest {
+                    if(it!=null){
+                        setData(it)
+                    }
+                }
         }
     }
 

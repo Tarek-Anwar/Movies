@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.components)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,6 +65,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation(libs.retrofit2.kotlinx.serialization.converter)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     //coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
@@ -77,16 +80,19 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
 
     //view Model
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.3")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
 
     //glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+    //
+    implementation("io.coil-kt:coil:2.6.0")
+
     //room
     val room_version = "2.6.1"
-
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
@@ -96,6 +102,12 @@ dependencies {
     //paging
     val paging_version = "3.3.0"
     implementation("androidx.paging:paging-runtime:$paging_version")
+
+    //splashscreen
+    implementation(libs.androidx.core.splashscreen)
+
+    //systemuicontroller
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
 }
 

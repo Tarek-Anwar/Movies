@@ -5,7 +5,10 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.bumptech.glide.Glide
+import com.example.movies.R
+import com.example.movies.data.util.IMAGE_BASE_URL
 import com.example.movies.databinding.MovieItemRvBinding
 import com.example.movies.domain.entity.MovieModelRemote
 
@@ -19,7 +22,9 @@ class MainPagingAadapter() :
         fun bind(movie: MovieModelRemote) {
             Glide.with(itemBinding.root.context)
                 .load("https://image.tmdb.org/t/p/w500" + movie.posterPath)
+                .error(R.drawable.image_load_failed)
                 .into(itemBinding.imageMovieRv)
+           // itemBinding.imageMovieRv.load(IMAGE_BASE_URL+movie.posterPath)
             itemBinding.root.setOnClickListener {
                 onItemClick?.invoke(movie)
             }

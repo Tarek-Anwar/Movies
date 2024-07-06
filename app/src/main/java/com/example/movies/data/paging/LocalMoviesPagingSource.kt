@@ -1,13 +1,13 @@
 package com.example.movies.data.paging
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.movies.data.local.MoviesDao
 import com.example.movies.domain.entity.MovieModelLocal
 import java.io.IOException
-/*
-class MoviesPagingSourceLocal(
+
+
+class LocalMoviesPagingSource(
     private val moviesDao: MoviesDao,
     private val firstPage: Int = 1,
 ) : PagingSource<Int, MovieModelLocal>() {
@@ -19,7 +19,6 @@ class MoviesPagingSourceLocal(
         return try {
             val currentPage = params.key ?: firstPage
 
-            Log.i(TAG, "current_movie_page:: $currentPage")
             val moviesList = moviesDao.getMovies(
                 params.loadSize,
                 (currentPage - 1) * params.loadSize
@@ -41,6 +40,4 @@ class MoviesPagingSourceLocal(
             LoadResult.Error(e)
         }
     }
-
-    private val TAG = "MoviesPagingSourceLocal"
-}*/
+}

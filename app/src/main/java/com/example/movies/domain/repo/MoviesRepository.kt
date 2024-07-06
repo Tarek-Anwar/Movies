@@ -1,13 +1,13 @@
 package com.example.movies.domain.repo
 
-import com.example.movies.data.paging.MoviesPagingSourceRemote
-import com.example.movies.domain.entity.MovieModelX
+import com.example.movies.data.paging.RemoteMoviesPagingSource
+import com.example.movies.domain.entity.MovieDetailModel
 
 interface MoviesRepository {
 
-    fun getSearchMovies(query : String): MoviesPagingSourceRemote
+    fun getSearchMovies(query : String): RemoteMoviesPagingSource
 
-    suspend fun getMovieDetails(id: Int): MovieModelX
+    suspend fun getMovieDetails(id: Int): MovieDetailModel
 
-    fun getCustomMovies(custom: String): MoviesPagingSourceRemote
+    fun getCustomMovies(custom: String): RemoteMoviesPagingSource
 }

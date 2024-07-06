@@ -1,5 +1,6 @@
 package com.example.movies.ui.fragment.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
@@ -12,12 +13,14 @@ import com.example.movies.domain.entity.MovieModelRemote
 
 class SearchPagingAadapter() :
     PagingDataAdapter<MovieModelRemote, SearchPagingAadapter.MainViewHolder>(MovieDiffCallback()) {
-
+    private  val TAG = "SearchPagingAadapter"
+        
     var onItemClick: ((MovieModelRemote) -> Unit)? = null
 
     inner class MainViewHolder(private val itemBinding: MovieItemSearchRvBinding) :
         RecyclerView.ViewHolder(itemBinding.root) {
         fun bind(movie: MovieModelRemote) {
+            Log.d(TAG, "bind: test "+ movie.overview)
             setUi(itemBinding, movie)
             itemBinding.root.setOnClickListener {
                 onItemClick?.invoke(movie)

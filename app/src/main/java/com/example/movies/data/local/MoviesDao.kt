@@ -9,8 +9,8 @@ import com.example.movies.domain.entity.MovieModelLocal
 @Dao
 interface MoviesDao {
 
-    @Query("SELECT * FROM movies")
-    suspend fun getAllMovies(): List<MovieModelLocal>
+    @Query("SELECT * FROM movies ORDER BY id ASC LIMIT :limit OFFSET :offset")
+    suspend fun getMovies(limit: Int, offset: Int) : List<MovieModelLocal>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovie(movieModelLocal: MovieModelLocal)
