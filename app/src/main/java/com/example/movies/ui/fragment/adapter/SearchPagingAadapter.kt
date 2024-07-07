@@ -6,20 +6,22 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.bumptech.glide.Glide
-import com.example.movies.databinding.MovieItemRvBinding
+import com.example.movies.R
+import com.example.movies.data.util.IMAGE_BASE_URL
 import com.example.movies.databinding.MovieItemSearchRvBinding
-import com.example.movies.domain.entity.MovieModelRemote
+import com.example.movies.domain.entity.MovieModel
 
 class SearchPagingAadapter() :
-    PagingDataAdapter<MovieModelRemote, SearchPagingAadapter.MainViewHolder>(MovieDiffCallback()) {
+    PagingDataAdapter<MovieModel, SearchPagingAadapter.MainViewHolder>(MovieDiffCallback()) {
     private  val TAG = "SearchPagingAadapter"
         
-    var onItemClick: ((MovieModelRemote) -> Unit)? = null
+    var onItemClick: ((MovieModel) -> Unit)? = null
 
     inner class MainViewHolder(private val itemBinding: MovieItemSearchRvBinding) :
         RecyclerView.ViewHolder(itemBinding.root) {
-        fun bind(movie: MovieModelRemote) {
+        fun bind(movie: MovieModel) {
             Log.d(TAG, "bind: test "+ movie.overview)
             setUi(itemBinding, movie)
             itemBinding.root.setOnClickListener {
@@ -27,10 +29,12 @@ class SearchPagingAadapter() :
             }
         }
 
-        private fun setUi(itemBinding: MovieItemSearchRvBinding, movie: MovieModelRemote) {
-            Glide.with(itemBinding.root.context)
-                .load("https://image.tmdb.org/t/p/w500" + movie.posterPath)
-                .into(itemBinding.posterMovieSearchImg)
+        private fun setUi(itemBinding: MovieItemSearchRvBinding, movie: MovieModel) {
+            itemBinding.posterMovieSearchImg.load(IMAGE_BASE_URL +movie.posterPath){
+                error(R.drawable.image_load_failed)
+                placeholder(R.drawable.icon_loading)
+                crossfade(1000)
+            }
             itemBinding.adultMovieSearchTv.text = movie.adult.toString()
             itemBinding.rateMovieSearchTv.text = movie.voteAverage.toString()
             itemBinding.titleMovieSearchTv.text = movie.title
@@ -54,17 +58,17 @@ class SearchPagingAadapter() :
         )
     }
 
-    class MovieDiffCallback : DiffUtil.ItemCallback<MovieModelRemote>() {
+    class MovieDiffCallback : DiffUtil.ItemCallback<MovieModel>() {
         override fun areItemsTheSame(
-            oldItem: MovieModelRemote,
-            newItem: MovieModelRemote
+            oldItem: MovieModel,
+            newItem: MovieModel
         ): Boolean {
             return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(
-            oldItem: MovieModelRemote,
-            newItem: MovieModelRemote
+            oldItem: MovieModel,
+            newItem: MovieModel
         ): Boolean {
             return oldItem == newItem
         }

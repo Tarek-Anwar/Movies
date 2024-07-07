@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.movies.data.local.MoviesDao
-import com.example.movies.domain.entity.MovieModelLocal
+import com.example.movies.domain.entity.MovieModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,7 +30,7 @@ object LocalModule {
 
 }
 
-@Database(entities = [MovieModelLocal::class], version = 1, exportSchema = false)
+@Database(entities = [MovieModel::class], version = 1, exportSchema = false)
 abstract class MovieDataBase : RoomDatabase() {
     abstract fun dao(): MoviesDao
 

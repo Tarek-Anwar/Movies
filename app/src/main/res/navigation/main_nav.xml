@@ -5,7 +5,7 @@
     app:startDestination="@id/main_fragment">
     <fragment
         android:id="@+id/main_fragment"
-        android:name="com.example.movies.ui.fragment.main.HomeFragment">
+        android:name="com.example.movies.ui.fragment.home.HomeFragment">
         <action
             android:id="@+id/action_main_fragment_to_movie_details_fragment"
             app:destination="@id/movie_details_fragment" />

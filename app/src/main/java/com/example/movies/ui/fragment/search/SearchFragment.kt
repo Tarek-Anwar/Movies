@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.movies.databinding.FragmentSearchBinding
@@ -44,6 +45,7 @@ class SearchFragment : Fragment() {
         listenerEditText()
         moviesObserver()
         handleResponse()
+        handelBackPressed()
 
     }
 
@@ -67,7 +69,7 @@ class SearchFragment : Fragment() {
     private fun fetchMovies(query: String) {
         if (query.isNotEmpty()) {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.searchMovies(query)
+                viewModel.keyWordMovies.trySend(query)
             }
         }
     }
@@ -77,6 +79,8 @@ class SearchFragment : Fragment() {
             when (loadState.refresh) {
                 is LoadState.Loading -> {
                     binding!!.progressBarSearch.visibility = View.VISIBLE
+                    binding!!.searchMovieRv.visibility = View.GONE
+                    binding!!.noSearchLayout.visibility = View.GONE
                 }
 
                 is LoadState.NotLoading -> {
@@ -94,13 +98,14 @@ class SearchFragment : Fragment() {
             }
         }
     }
-
+    private fun handelBackPressed() {
+        binding!!.searchBackImg.setOnClickListener {
+            findNavController().navigateUp()
+        }
+    }
 
     private fun moviesObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            /* viewModel.getMoviesSearch(query).collectLatest { pagingData ->
-                 searchAdapter.submitData(pagingData)
- */
             viewModel.searchResults.collectLatest {
                 searchAdapter.submitData(it)
             }

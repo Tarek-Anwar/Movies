@@ -18,6 +18,7 @@ import com.example.movies.R
 import com.example.movies.data.util.IMAGE_BASE_URL
 import com.example.movies.databinding.FragmentMovieDetailsBinding
 import com.example.movies.domain.entity.MovieDetailModel
+import com.example.movies.domain.entity.MovieModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -58,14 +59,16 @@ class MovieDetailsFragment : Fragment() {
         binding!!.adultMovieTv.text = movie.isAdult.toString()
         binding!!.rateMovie.text = movie.voteAverage.toString()
         binding!!.originalLanguageMovie.text = movie.originalLanguage
-        Glide.with(requireContext())
-            .load(IMAGE_BASE_URL+movie.posterPath)
-            .into(binding!!.posterMovieImg)
-        Glide.with(requireContext())
-            .load(IMAGE_BASE_URL+movie.backdropPath)
-            .into(binding!!.backdropMovieImg)
-        //binding!!.backdropMovieImg.load(IMAGE_BASE_URL+movie.backdropPath)
-        //binding!!.posterMovieImg.load(IMAGE_BASE_URL+movie.posterPath)
+        binding!!.backdropMovieImg.load(IMAGE_BASE_URL+movie.backdropPath){
+            error(R.drawable.image_load_failed)
+            placeholder(R.drawable.icon_loading)
+            crossfade(1000)
+        }
+        binding!!.posterMovieImg.load(IMAGE_BASE_URL+movie.posterPath){
+            error(R.drawable.image_load_failed)
+            placeholder(R.drawable.icon_loading)
+            crossfade(1000)
+        }
 
 
     }

@@ -1,7 +1,9 @@
 package com.example.movies.data.di
 
+import com.example.movies.MovieApp
 import com.example.movies.data.remote.MoviesApiService
 import com.example.movies.data.util.BASE_URL
+import com.example.movies.ui.util.NetworkState
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,6 +18,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
+    @Provides
+    @Singleton
+    fun provideApp(): MovieApp {
+        return MovieApp.instance
+    }
+    @Provides
+    @Singleton
+    fun provideNetworkState(): NetworkState {
+        return NetworkState
+    }
+
 
     @Provides
     @Singleton

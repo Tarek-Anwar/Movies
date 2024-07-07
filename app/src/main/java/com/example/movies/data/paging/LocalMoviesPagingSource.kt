@@ -3,19 +3,20 @@ package com.example.movies.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.movies.data.local.MoviesDao
-import com.example.movies.domain.entity.MovieModelLocal
+import com.example.movies.domain.entity.MovieModel
 import java.io.IOException
 
 
 class LocalMoviesPagingSource(
     private val moviesDao: MoviesDao,
     private val firstPage: Int = 1,
-) : PagingSource<Int, MovieModelLocal>() {
-    override fun getRefreshKey(state: PagingState<Int, MovieModelLocal>): Int? {
+) : PagingSource<Int, MovieModel>() {
+
+    override fun getRefreshKey(state: PagingState<Int, MovieModel>): Int? {
         return 0;
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieModelLocal> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieModel> {
         return try {
             val currentPage = params.key ?: firstPage
 
@@ -33,7 +34,7 @@ class LocalMoviesPagingSource(
 
             LoadResult.Page(
                 data = moviesList,
-                prevKey = if (currentPage == 1) null else currentPage,
+                prevKey = if (currentPage == 1) null else currentPage -1,
                 nextKey = nextPage
             )
         } catch (e: Exception) {

@@ -1,13 +1,21 @@
 package com.example.movies.domain.repo
 
+import androidx.paging.Pager
 import com.example.movies.data.paging.RemoteMoviesPagingSource
 import com.example.movies.domain.entity.MovieDetailModel
+import com.example.movies.domain.entity.MovieModel
 
 interface MoviesRepository {
 
-    fun getSearchMovies(query : String): RemoteMoviesPagingSource
+    suspend fun getSearchMovies(query: String): Pager<Int, MovieModel>
 
-    suspend fun getMovieDetails(id: Int): MovieDetailModel
+    suspend fun getPopularMovies(): Pager<Int, MovieModel>
 
-    fun getCustomMovies(custom: String): RemoteMoviesPagingSource
+    suspend fun getTopRatedMovies(): Pager<Int, MovieModel>
+
+    suspend fun getUpcomingMovies(): Pager<Int, MovieModel>
+
+    suspend fun getCachedMovies(): Pager<Int, MovieModel>
+
+
 }

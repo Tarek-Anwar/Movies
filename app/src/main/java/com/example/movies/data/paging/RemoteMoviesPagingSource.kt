@@ -3,53 +3,85 @@ package com.example.movies.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.movies.data.local.MoviesDao
-import com.example.movies.data.mappers.toLocalMovie
 import com.example.movies.data.remote.MoviesApiService
-import com.example.movies.domain.entity.MovieModelRemote
-import java.util.stream.IntStream.range
+import com.example.movies.domain.entity.MovieModel
+
+enum class MoviesType {
+    POPULAR,
+    TOP_RATED,
+    UPCOMING,
+    NONE
+}
 
 class RemoteMoviesPagingSource(
-    private val query: String = "",
-    private var categoryTypeMovie: String = "popular",
-    private var forceCashing: Boolean = true,
-    private val moviesApiService: MoviesApiService,
-    private val moviesDao: MoviesDao
-    ) : PagingSource<Int, MovieModelRemote>() {
+    private val apiService: MoviesApiService,
+    private val moviesDao: MoviesDao,
+    private val firstPage: Int = 1,
+    private var moviesType: MoviesType = MoviesType.NONE,
+    private var query: String = "",
+) : PagingSource<Int, MovieModel>() {
 
-    fun setForceCaching(isCache: Boolean) {
-        forceCashing = isCache
+
+    fun setMoviesType(moviesType: MoviesType) {
+        this.moviesType = moviesType
     }
 
+    fun setQuery(query: String) {
+        this.query = query
+    }
 
-    override fun getRefreshKey(state: PagingState<Int, MovieModelRemote>): Int? {
-       /* return state.anchorPosition?.let { anchorPosition ->
+    override fun getRefreshKey(state: PagingState<Int, MovieModel>): Int? {
+        return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
-        }*/
-        return 0
+        }
+
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieModelRemote> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieModel> {
         return try {
-            val currentPage = params.key ?: 1
+            val currentPage = params.key ?: firstPage
+            val moviesList = if (query.isEmpty()) {
+                when (moviesType) {
+                    MoviesType.POPULAR -> apiService.getMoviesWithCategory(
+                        "popular",
+                        currentPage
+                    ).movies
 
-            val response = if (query.isNotEmpty()) moviesApiService.searchMovies(query, page = currentPage)
-            else moviesApiService.getCustomMovies(categoryTypeMovie, currentPage)
+                    MoviesType.TOP_RATED -> apiService.getMoviesWithCategory(
+                        "top_rated",
+                        currentPage
+                    ).movies
 
-            if (forceCashing && query.isEmpty() && range(1,4).toArray().contains(currentPage)) {
-                val localMovies = response.movies.map {
-                    it.toLocalMovie()
+                    MoviesType.UPCOMING -> apiService.getMoviesWithCategory(
+                        "upcoming",
+                        currentPage
+                    ).movies
+
+                    MoviesType.NONE -> {
+                        throw IllegalArgumentException(
+                            "Parameter MoviesType Not passed",
+                            Throwable("Please select movies type to get")
+                        )
+                    }
                 }
-                moviesDao.insertMovies(localMovies)
+            } else {
+                apiService.searchMovies(currentPage, query = query).movies
             }
+
+           // moviesDao.insertMovies(moviesList)
+            val nextPage: Int? =
+                if (moviesList.isEmpty()) null else currentPage.plus(1)
             LoadResult.Page(
-                data = response.movies,
+                data = moviesList,
                 prevKey = if (currentPage == 1) null else currentPage - 1,
-                nextKey = if (response.movies.isEmpty()) null else currentPage.plus(1)
+                nextKey = nextPage
             )
+
         } catch (e: Exception) {
             LoadResult.Error(e)
         }
     }
 
+    private val TAG = "RemoteMoviesPagingSourc"
 }

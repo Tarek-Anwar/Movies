@@ -22,11 +22,11 @@ class MainActivity : AppCompatActivity() {
        if (shouldAvoidSplashScreen) setTheme(R.style.Theme_Movies) else {
             splashScreen = initSplashScreen()
         }
-        super.onCreate(savedInstanceState)
-
         if (shouldAvoidSplashScreen.not()) splashScreen?.run {
             setKeepOnScreenCondition { !dismissSplash }
         }
+        super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
     }
