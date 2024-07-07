@@ -84,10 +84,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
 
-    //glide
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-
     //coil
     implementation("io.coil-kt:coil:2.6.0")
 
@@ -106,8 +102,6 @@ dependencies {
     //splashscreen
     implementation(libs.androidx.core.splashscreen)
 
-    //systemuicontroller
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
 }
 

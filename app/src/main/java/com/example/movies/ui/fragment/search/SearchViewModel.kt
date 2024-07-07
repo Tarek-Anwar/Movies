@@ -31,28 +31,11 @@ class SearchViewModel @Inject constructor(
 
     val keyWordMovies: Channel<String> = Channel(capacity = Channel.UNLIMITED)
 
-
-    /* private fun getMoviesSearch(query: String) = Pager(
-         config = PagingConfig(pageSize = 20, enablePlaceholders = false),
-         pagingSourceFactory = { repo.getSearchMovies(query) }
-     ).flow.cachedIn(viewModelScope)
-
-     fun searchMovies(query: String) {
-         viewModelScope.launch {
-             getMoviesSearch(query).collect{
-                 _searchResults.value = it
-             }
-         }
-     }*/
-
     init {
         viewModelScope.launch {
             keyWordMovies.consumeAsFlow().distinctUntilChanged()
-                .collectLatest {
-                    getMovies(it)
-                }
+                .collectLatest { getMovies(it) }
         }
-
     }
 
     private suspend fun getMovies(quary: String) {
