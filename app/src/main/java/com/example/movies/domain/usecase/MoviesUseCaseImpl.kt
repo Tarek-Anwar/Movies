@@ -17,11 +17,11 @@ class MoviesUseCaseImpl @Inject constructor(
 ) : MovieUseCase {
     override suspend fun getMostPopularMovies(): Flow<PagingData<MovieModel>> {
         val movies = if (networkState.isOnline()) {
-            repo.getPopularMovies().flow
+            repo.getPopularMovies().flow.distinctUntilChanged()
         } else {
-            repo.getCachedMovies().flow
+            repo.getCachedMovies().flow.distinctUntilChanged()
         }
-        return movies.distinctUntilChanged()
+        return movies
     }
 
     override suspend fun getMoviesDetail(id: Int): MovieDetailModel {
@@ -34,14 +34,14 @@ class MoviesUseCaseImpl @Inject constructor(
     }
 
     override suspend fun getTopRatedMovies(): Flow<PagingData<MovieModel>> {
-            return  repo.getTopRatedMovies().flow
+        return repo.getTopRatedMovies().flow.distinctUntilChanged()
 
     }
 
 
     override suspend fun getUpcomingMovies(): Flow<PagingData<MovieModel>> {
-        return repo.getUpcomingMovies().flow
-
+        return repo.getUpcomingMovies().flow.distinctUntilChanged()
     }
 
 }
+

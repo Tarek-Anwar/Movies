@@ -13,10 +13,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies.databinding.FragmentHomeBinding
 import com.example.movies.ui.fragment.adapter.MainPagingAadapter
-import com.example.movies.ui.util.MoviesType
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -42,12 +40,11 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initRecyclerView()
-        handleResult()
+        setupObservers()
         handelSelectedTab()
-       // setupObservers()
         setupListeners()
 
-        handelGetMovies(MoviesType.POPULAR)
+        handelGetMovies(viewModel.selectedTabPosition.value)
 
     }
 
@@ -57,7 +54,7 @@ class HomeFragment : Fragment() {
             override fun onTabSelected(p0: TabLayout.Tab?) {
                 p0?.let {
                     viewModel.saveSelectedTabPosition(it.position)
-                    setSelectedTab(p0.position)
+                    handelGetMovies(p0.position)
                 }
             }
             override fun onTabUnselected(p0: TabLayout.Tab?) {}
@@ -65,28 +62,17 @@ class HomeFragment : Fragment() {
         })
     }
 
-
-    private fun setSelectedTab(position: Int) {
-        when (position) {
-            0 -> handelGetMovies(MoviesType.POPULAR)
-            1 -> handelGetMovies(MoviesType.TOP_RATED)
-            2 -> handelGetMovies(MoviesType.UPCOMING)
-        }
-
-    }
-
     private fun setupObservers() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            viewModel.moviesList.collectLatest{ pagingData ->
+        viewLifecycleOwner.lifecycleScope.launch() {
+            viewModel.moviesList.collectLatest { pagingData ->
                 mainAdapter.submitData(pagingData)
+                handleResult()
             }
         }
     }
 
-    private fun handelGetMovies(moviesType: MoviesType){
-        viewModel.moviesType.trySend(moviesType)
-        setupObservers()
-
+    private fun handelGetMovies(position: Int) {
+        viewModel.moviesType.trySend(position)
     }
 
     private fun handelSelectedTab() {
@@ -96,26 +82,13 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
     private fun handleResult() {
         mainAdapter.addLoadStateListener { loadState ->
             when (loadState.refresh) {
-                is LoadState.Loading -> {
-                    binding.progressBarHome.visibility = View.VISIBLE
-                    binding.errorTextMain.visibility = View.GONE
-                    recyclerView.visibility = View.VISIBLE
-                }
-                is LoadState.NotLoading -> {
-                    recyclerView.visibility = View.VISIBLE
-                    binding.progressBarHome.visibility = View.GONE
-                    binding.errorTextMain.visibility = View.GONE
-                }
-                is LoadState.Error -> {
-                    recyclerView.visibility = View.GONE
-                    binding.progressBarHome.visibility = View.GONE
-                    binding.errorTextMain.visibility = View.VISIBLE
-                    binding.errorTextMain.text =
-                        (loadState.refresh as LoadState.Error).error.message
-                }
+                is LoadState.Loading -> setProgressBarVisible()
+                is LoadState.NotLoading -> setRecyclerViewVisible()
+                is LoadState.Error -> setErrorVisible((loadState.refresh as LoadState.Error).error.message.toString())
             }
         }
     }
@@ -132,16 +105,31 @@ class HomeFragment : Fragment() {
 
     private fun initRecyclerView() {
         recyclerView = binding.moviesHomeRv
-        recyclerView.adapter = mainAdapter
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerView.adapter = mainAdapter
         mainAdapter.onItemClick = {
             navigateToDetailFragment(it.id)
         }
     }
 
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
+    private fun setRecyclerViewVisible() {
+        recyclerView.visibility = View.VISIBLE
+        binding.progressBarHome.visibility = View.GONE
+        binding.errorTextMain.visibility = View.GONE
     }
+
+    private fun setProgressBarVisible() {
+        binding.progressBarHome.visibility = View.VISIBLE
+        binding.errorTextMain.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
+    }
+
+    private fun setErrorVisible(error: String) {
+        recyclerView.visibility = View.GONE
+        binding.progressBarHome.visibility = View.GONE
+        binding.errorTextMain.visibility = View.VISIBLE
+        binding.errorTextMain.text = error
+
+    }
+
 }

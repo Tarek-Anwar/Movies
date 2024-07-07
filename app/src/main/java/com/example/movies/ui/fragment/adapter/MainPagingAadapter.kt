@@ -16,6 +16,7 @@ class MainPagingAadapter() :
 
     var onItemClick: ((MovieModel) -> Unit)? = null
 
+
     inner class MainViewHolder(private val itemBinding: MovieItemRvBinding) :
         RecyclerView.ViewHolder(itemBinding.root) {
         fun bind(movie: MovieModel) {
@@ -34,6 +35,7 @@ class MainPagingAadapter() :
 
     }
 
+
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
         holder.bind(getItem(position)!!)
     }
@@ -41,24 +43,20 @@ class MainPagingAadapter() :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
         return MainViewHolder(
             MovieItemRvBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
+                LayoutInflater.from(parent.context), parent, false
             )
         )
     }
 
     class MovieDiffCallback : DiffUtil.ItemCallback<MovieModel>() {
         override fun areItemsTheSame(
-            oldItem: MovieModel,
-            newItem: MovieModel
+            oldItem: MovieModel, newItem: MovieModel
         ): Boolean {
             return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(
-            oldItem: MovieModel,
-            newItem: MovieModel
+            oldItem: MovieModel, newItem: MovieModel
         ): Boolean {
             return oldItem == newItem
         }

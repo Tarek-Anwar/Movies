@@ -31,7 +31,7 @@ class HomeViewModel @Inject constructor(
     private val _moviesFlow = MutableStateFlow<PagingData<MovieModel>>(PagingData.empty())
     val moviesList: StateFlow<PagingData<MovieModel>> = _moviesFlow.asStateFlow()
 
-    val moviesType: Channel<MoviesType> = Channel(capacity = Channel.UNLIMITED)
+    val moviesType: Channel<Int> = Channel(capacity = Channel.UNLIMITED)
 
 
     private val _selectedTabPosition =
@@ -49,7 +49,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             moviesType.consumeAsFlow().distinctUntilChanged()
                 .collectLatest {
-                    getMovies(it)
+                    getMovies(getMovieType(it))
                 }
         }
 
@@ -67,4 +67,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun getMovieType(position: Int): MoviesType {
+        return when (position) {
+            0 -> MoviesType.POPULAR
+            1 -> MoviesType.TOP_RATED
+            2 -> MoviesType.UPCOMING
+            else -> MoviesType.POPULAR
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.example.movies.ui.fragment.search
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
+import androidx.paging.log
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.movies.R
 import com.example.movies.databinding.FragmentSearchBinding
 import com.example.movies.ui.fragment.adapter.SearchPagingAadapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,7 +47,6 @@ class SearchFragment : Fragment() {
         initRecyclerView()
         listenerEditText()
         moviesObserver()
-        handleResponse()
         handelBackPressed()
 
     }
@@ -61,14 +63,15 @@ class SearchFragment : Fragment() {
                     }
                 }
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun fetchMovies(query: String) {
-        if (query.isNotEmpty()) {
-            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        if (query.isEmpty()) {
+            setErrorVisible(getString(R.string.find_your_movie))
+        }else{
+            viewLifecycleOwner.lifecycleScope.launch {
                 viewModel.keyWordMovies.trySend(query)
             }
         }
@@ -77,24 +80,9 @@ class SearchFragment : Fragment() {
     private fun handleResponse() {
         searchAdapter.addLoadStateListener { loadState ->
             when (loadState.refresh) {
-                is LoadState.Loading -> {
-                    binding!!.progressBarSearch.visibility = View.VISIBLE
-                    binding!!.searchMovieRv.visibility = View.GONE
-                    binding!!.noSearchLayout.visibility = View.GONE
-                }
-
-                is LoadState.NotLoading -> {
-                    binding!!.progressBarSearch.visibility = View.GONE
-                    binding!!.searchMovieRv.visibility = View.VISIBLE
-                    binding!!.noSearchLayout.visibility = View.GONE
-
-                }
-                is LoadState.Error -> {
-                    binding!!.progressBarSearch.visibility = View.GONE
-                    binding!!.searchMovieRv.visibility = View.GONE
-                    binding!!.noSearchLayout.visibility = View.VISIBLE
-                    binding!!.errorText.text = (loadState.refresh as LoadState.Error).error.message
-                }
+                is LoadState.Loading -> setProgressBarVisible()
+                is LoadState.NotLoading -> setRecyclerViewVisible()
+                is LoadState.Error -> setErrorVisible((loadState.refresh as LoadState.Error).error.message.toString())
             }
         }
     }
@@ -108,22 +96,40 @@ class SearchFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.searchResults.collectLatest {
                 searchAdapter.submitData(it)
+                handleResponse()
             }
         }
     }
 
-
     private fun initRecyclerView() {
         binding?.searchMovieRv?.adapter = searchAdapter
         binding?.searchMovieRv?.layoutManager = LinearLayoutManager(requireContext())
+        if (searchAdapter.itemCount > 0) {
+            setRecyclerViewVisible()
+        }
         searchAdapter.onItemClick = {
             navigateToDetailFragment(it.id)
         }
     }
-
     private fun navigateToDetailFragment(id: Int) {
         val action = SearchFragmentDirections.actionSearchFragmentToMovieDetailsFragment(id)
         Navigation.findNavController(requireView()).navigate(action)
+    }
+    private fun setRecyclerViewVisible() {
+        binding!!.progressBarSearch.visibility = View.GONE
+        binding!!.searchMovieRv.visibility = View.VISIBLE
+        binding!!.noSearchLayout.visibility = View.GONE
+    }
+    private fun setProgressBarVisible() {
+        binding!!.progressBarSearch.visibility = View.VISIBLE
+        binding!!.searchMovieRv.visibility = View.GONE
+        binding!!.noSearchLayout.visibility = View.GONE
+    }
+    private fun setErrorVisible(error : String){
+        binding!!.progressBarSearch.visibility = View.GONE
+        binding!!.searchMovieRv.visibility = View.GONE
+        binding!!.noSearchLayout.visibility = View.VISIBLE
+        binding!!.errorText.text = error
     }
 
 }

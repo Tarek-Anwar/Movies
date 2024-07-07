@@ -16,7 +16,7 @@ enum class MoviesType {
 class RemoteMoviesPagingSource(
     private val apiService: MoviesApiService,
     private val moviesDao: MoviesDao,
-    private val firstPage: Int = 1,
+   // private val firstPage: Int = 1,
     private var moviesType: MoviesType = MoviesType.NONE,
     private var query: String = "",
 ) : PagingSource<Int, MovieModel>() {
@@ -35,12 +35,11 @@ class RemoteMoviesPagingSource(
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
-
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieModel> {
         return try {
-            val currentPage = params.key ?: firstPage
+            val currentPage = params.key ?: 1
             val moviesList = if (query.isEmpty()) {
                 when (moviesType) {
                     MoviesType.POPULAR -> apiService.getMoviesWithCategory(
@@ -65,11 +64,10 @@ class RemoteMoviesPagingSource(
                         )
                     }
                 }
-            } else {
-                apiService.searchMovies(currentPage, query = query).movies
-            }
+            } else { apiService.searchMovies(currentPage, query = query).movies }
 
-           // moviesDao.insertMovies(moviesList)
+            moviesList.let { moviesDao.insertMovies(it) }
+
             val nextPage: Int? =
                 if (moviesList.isEmpty()) null else currentPage.plus(1)
             LoadResult.Page(
@@ -77,11 +75,9 @@ class RemoteMoviesPagingSource(
                 prevKey = if (currentPage == 1) null else currentPage - 1,
                 nextKey = nextPage
             )
-
         } catch (e: Exception) {
             LoadResult.Error(e)
         }
     }
 
-    private val TAG = "RemoteMoviesPagingSourc"
 }
