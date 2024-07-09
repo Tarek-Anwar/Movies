@@ -27,7 +27,8 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
-    private val mainAdapter by lazy { MainPagingAadapter() }
+  //  private val mainAdapter by lazy { MainPagingAadapter() }
+    private var mainAdapter : MainPagingAadapter? = MainPagingAadapter()
     private lateinit var recyclerView: RecyclerView
 
 
@@ -66,8 +67,8 @@ class HomeFragment : Fragment() {
                 p0?.let {
                     viewModel.saveSelectedTabPosition(it.position)
                     handelGetMovies(p0.position)
-                    recyclerView.adapter = null
-                    recyclerView.adapter = mainAdapter
+
+
 
                 }
             }
@@ -81,12 +82,15 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch{
             viewModel.moviesList.collectLatest { pagingData ->
                 handleResult()
-                mainAdapter.submitData(pagingData)
+                mainAdapter?.submitData(pagingData)
             }
         }
     }
 
     private fun handelGetMovies(position: Int) {
+        mainAdapter = null
+        mainAdapter = MainPagingAadapter()
+        recyclerView.adapter = mainAdapter
         viewModel.moviesType.trySend(position)
     }
 
@@ -99,7 +103,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun handleResult() {
-        mainAdapter.addLoadStateListener { loadState ->
+        mainAdapter?.addLoadStateListener { loadState ->
             when (loadState.refresh) {
                 is LoadState.Loading -> setProgressBarVisible()
                 is LoadState.NotLoading -> setRecyclerViewVisible()
@@ -122,7 +126,7 @@ class HomeFragment : Fragment() {
         recyclerView = binding.moviesHomeRv
         recyclerView.layoutManager = GridLayoutManager(requireContext(), getNumberSpanCount())
         recyclerView.adapter = mainAdapter
-        mainAdapter.onItemClick = {
+        mainAdapter?.onItemClick = {
             navigateToDetailFragment(it.id)
         }
     }
