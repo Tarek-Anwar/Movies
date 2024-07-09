@@ -7,7 +7,6 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.bumptech.glide.Glide
 import com.example.movies.R
 import com.example.movies.data.util.IMAGE_BASE_URL
 import com.example.movies.databinding.MovieItemSearchRvBinding
@@ -15,14 +14,12 @@ import com.example.movies.domain.entity.MovieModel
 
 class SearchPagingAadapter() :
     PagingDataAdapter<MovieModel, SearchPagingAadapter.MainViewHolder>(MovieDiffCallback()) {
-    private  val TAG = "SearchPagingAadapter"
-        
+
     var onItemClick: ((MovieModel) -> Unit)? = null
 
     inner class MainViewHolder(private val itemBinding: MovieItemSearchRvBinding) :
         RecyclerView.ViewHolder(itemBinding.root) {
         fun bind(movie: MovieModel) {
-            Log.d(TAG, "bind: test "+ movie.overview)
             setUi(itemBinding, movie)
             itemBinding.root.setOnClickListener {
                 onItemClick?.invoke(movie)

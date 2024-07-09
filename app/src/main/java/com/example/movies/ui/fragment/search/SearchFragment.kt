@@ -25,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
@@ -38,6 +39,8 @@ class SearchFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
+        moviesObserver()
+
         return binding!!.root
     }
 
@@ -46,7 +49,6 @@ class SearchFragment : Fragment() {
 
         initRecyclerView()
         listenerEditText()
-        moviesObserver()
         handelBackPressed()
 
     }
@@ -71,7 +73,7 @@ class SearchFragment : Fragment() {
         if (query.isEmpty()) {
             setErrorVisible(getString(R.string.find_your_movie))
         }else{
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch {
                 viewModel.keyWordMovies.trySend(query)
             }
         }
@@ -93,7 +95,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun moviesObserver() {
-        viewLifecycleOwner.lifecycleScope.launch {
+       lifecycleScope.launch(Dispatchers.IO){
             viewModel.searchResults.collectLatest {
                 searchAdapter.submitData(it)
                 handleResponse()
@@ -104,9 +106,7 @@ class SearchFragment : Fragment() {
     private fun initRecyclerView() {
         binding?.searchMovieRv?.adapter = searchAdapter
         binding?.searchMovieRv?.layoutManager = LinearLayoutManager(requireContext())
-        if (searchAdapter.itemCount > 0) {
-            setRecyclerViewVisible()
-        }
+        if (searchAdapter.itemCount > 0) setRecyclerViewVisible()
         searchAdapter.onItemClick = {
             navigateToDetailFragment(it.id)
         }
@@ -130,6 +130,11 @@ class SearchFragment : Fragment() {
         binding!!.searchMovieRv.visibility = View.GONE
         binding!!.noSearchLayout.visibility = View.VISIBLE
         binding!!.errorText.text = error
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
 }

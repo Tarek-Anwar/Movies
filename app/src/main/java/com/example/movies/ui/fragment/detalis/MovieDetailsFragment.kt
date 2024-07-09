@@ -12,13 +12,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
-import coil.transform.CircleCropTransformation
-import com.bumptech.glide.Glide
 import com.example.movies.R
 import com.example.movies.data.util.IMAGE_BASE_URL
 import com.example.movies.databinding.FragmentMovieDetailsBinding
 import com.example.movies.domain.entity.MovieDetailModel
-import com.example.movies.domain.entity.MovieModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -28,12 +25,12 @@ import kotlinx.coroutines.launch
 class MovieDetailsFragment : Fragment() {
     private var binding: FragmentMovieDetailsBinding? = null
     private val viewModel: MovieDetailsViewModel by viewModels()
-    val args: MovieDetailsFragmentArgs by navArgs()
+    private val args: MovieDetailsFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMovieDetailsBinding.inflate(inflater, container, false)
         viewModel.getMovieDetail(args.id)
         return binding!!.root
@@ -55,19 +52,19 @@ class MovieDetailsFragment : Fragment() {
     private fun setData(movie: MovieDetailModel) {
         binding!!.overviewMovieTv.text = movie.overview
         binding!!.releaseDateTv.text = movie.releaseDate
-        binding!!.titleMovieTv.text = movie.originalTitle
+        binding!!.titleMovieTv.text = movie.title
         binding!!.adultMovieTv.text = movie.isAdult.toString()
         binding!!.rateMovie.text = movie.voteAverage.toString()
         binding!!.originalLanguageMovie.text = movie.originalLanguage
-        binding!!.backdropMovieImg.load(IMAGE_BASE_URL+movie.backdropPath){
+        binding!!.backdropMovieImg.load(IMAGE_BASE_URL + movie.backdropPath) {
             error(R.drawable.image_load_failed)
             placeholder(R.drawable.icon_loading)
-            crossfade(1000)
+            crossfade(800)
         }
-        binding!!.posterMovieImg.load(IMAGE_BASE_URL+movie.posterPath){
+        binding!!.posterMovieImg.load(IMAGE_BASE_URL + movie.posterPath) {
             error(R.drawable.image_load_failed)
             placeholder(R.drawable.icon_loading)
-            crossfade(1000)
+            crossfade(800)
         }
 
 
@@ -77,9 +74,7 @@ class MovieDetailsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.movieModelXStateFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 .collectLatest {
-                    if(it!=null){
-                        setData(it)
-                    }
+                    setData(it)
                 }
         }
     }

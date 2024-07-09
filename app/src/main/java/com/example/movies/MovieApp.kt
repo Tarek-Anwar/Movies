@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import coil.Coil
 import com.example.movies.ui.util.networkCallback
 import dagger.hilt.android.HiltAndroidApp
 

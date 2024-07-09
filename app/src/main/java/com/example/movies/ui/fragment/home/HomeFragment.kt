@@ -1,5 +1,6 @@
 package com.example.movies.ui.fragment.home
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,8 @@ import com.example.movies.databinding.FragmentHomeBinding
 import com.example.movies.ui.fragment.adapter.MainPagingAadapter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -31,9 +34,17 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    private fun getNumberSpanCount() : Int{
+       return when(resources.configuration.orientation){
+            Configuration.ORIENTATION_LANDSCAPE ->  4
+            else -> 2
+        }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,18 +66,22 @@ class HomeFragment : Fragment() {
                 p0?.let {
                     viewModel.saveSelectedTabPosition(it.position)
                     handelGetMovies(p0.position)
+                    recyclerView.adapter = null
+                    recyclerView.adapter = mainAdapter
+
                 }
             }
+
             override fun onTabUnselected(p0: TabLayout.Tab?) {}
             override fun onTabReselected(p0: TabLayout.Tab?) {}
         })
     }
 
     private fun setupObservers() {
-        viewLifecycleOwner.lifecycleScope.launch() {
+        viewLifecycleOwner.lifecycleScope.launch{
             viewModel.moviesList.collectLatest { pagingData ->
-                mainAdapter.submitData(pagingData)
                 handleResult()
+                mainAdapter.submitData(pagingData)
             }
         }
     }
@@ -105,7 +120,7 @@ class HomeFragment : Fragment() {
 
     private fun initRecyclerView() {
         recyclerView = binding.moviesHomeRv
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), getNumberSpanCount())
         recyclerView.adapter = mainAdapter
         mainAdapter.onItemClick = {
             navigateToDetailFragment(it.id)
@@ -129,7 +144,7 @@ class HomeFragment : Fragment() {
         binding.progressBarHome.visibility = View.GONE
         binding.errorTextMain.visibility = View.VISIBLE
         binding.errorTextMain.text = error
-
     }
+
 
 }
