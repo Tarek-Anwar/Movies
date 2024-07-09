@@ -8,8 +8,10 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.example.movies.R
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -27,6 +29,10 @@ class MainActivity : AppCompatActivity() {
             setKeepOnScreenCondition { dismissSplash }
         }
         setContentView(R.layout.activity_main)
+
+        lifecycleScope.launch {
+
+        }
 
     }
 

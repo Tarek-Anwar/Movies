@@ -19,6 +19,7 @@ import com.example.movies.domain.entity.MovieDetailModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.round
 
 
 @AndroidEntryPoint
@@ -54,7 +55,7 @@ class MovieDetailsFragment : Fragment() {
         binding!!.releaseDateTv.text = movie.releaseDate
         binding!!.titleMovieTv.text = movie.title
         binding!!.adultMovieTv.text = movie.isAdult.toString()
-        binding!!.rateMovie.text = movie.voteAverage.toString()
+        binding!!.rateMovie.text = "%.1f".format(movie.voteAverage)
         binding!!.originalLanguageMovie.text = movie.originalLanguage
         binding!!.backdropMovieImg.load(IMAGE_BASE_URL + movie.backdropPath) {
             error(R.drawable.image_load_failed)

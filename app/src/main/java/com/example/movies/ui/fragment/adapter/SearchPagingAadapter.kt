@@ -30,10 +30,10 @@ class SearchPagingAadapter() :
             itemBinding.posterMovieSearchImg.load(IMAGE_BASE_URL +movie.posterPath){
                 error(R.drawable.image_load_failed)
                 placeholder(R.drawable.icon_loading)
-                crossfade(1000)
+                crossfade(100)
             }
             itemBinding.adultMovieSearchTv.text = movie.adult.toString()
-            itemBinding.rateMovieSearchTv.text = movie.voteAverage.toString()
+            itemBinding.rateMovieSearchTv.text = "%.1f".format(movie.voteAverage)
             itemBinding.titleMovieSearchTv.text = movie.title
             itemBinding.originalLanguageSearchMovie.text = movie.originalLanguage
             itemBinding.releaseDateSearchTv.text = movie.releaseDate

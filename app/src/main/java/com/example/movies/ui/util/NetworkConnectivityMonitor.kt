@@ -3,7 +3,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 
-private val TAG = "networkCallback"
 
 val networkCallback = object : ConnectivityManager.NetworkCallback() {
     // network is available for use
