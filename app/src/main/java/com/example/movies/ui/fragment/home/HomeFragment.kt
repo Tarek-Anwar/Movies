@@ -27,7 +27,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
-  //  private val mainAdapter by lazy { MainPagingAadapter() }
+   //private val mainAdapter by lazy { MainPagingAadapter() }
     private var mainAdapter : MainPagingAadapter? = MainPagingAadapter()
     private lateinit var recyclerView: RecyclerView
 
@@ -67,9 +67,7 @@ class HomeFragment : Fragment() {
                 p0?.let {
                     viewModel.saveSelectedTabPosition(it.position)
                     handelGetMovies(p0.position)
-
-
-
+                    handelAdapter()
                 }
             }
 
@@ -88,10 +86,21 @@ class HomeFragment : Fragment() {
     }
 
     private fun handelGetMovies(position: Int) {
+        viewModel.moviesType.trySend(position)
+    }
+
+    private fun handelAdapter(){
         mainAdapter = null
         mainAdapter = MainPagingAadapter()
         recyclerView.adapter = mainAdapter
-        viewModel.moviesType.trySend(position)
+        mainAdapter?.onItemClick = {
+            navigateToDetailFragment(it.id)
+        }
+    }
+    private fun initRecyclerView() {
+        recyclerView = binding.moviesHomeRv
+        recyclerView.adapter = mainAdapter
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), getNumberSpanCount())
     }
 
     private fun handelSelectedTab() {
@@ -120,15 +129,6 @@ class HomeFragment : Fragment() {
     private fun navigateToSearchFragment() {
         val action = HomeFragmentDirections.actionMainFragmentToSearchFragment()
         Navigation.findNavController(requireView()).navigate(action)
-    }
-
-    private fun initRecyclerView() {
-        recyclerView = binding.moviesHomeRv
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), getNumberSpanCount())
-        recyclerView.adapter = mainAdapter
-        mainAdapter?.onItemClick = {
-            navigateToDetailFragment(it.id)
-        }
     }
 
     private fun setRecyclerViewVisible() {
