@@ -1,7 +1,6 @@
 package com.example.movies.data.remote
 
 import com.example.movies.data.util.API_KEY
-import com.example.movies.domain.entity.MovieDetailModel
 import com.example.movies.domain.entity.MoviesResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -23,12 +22,6 @@ interface MoviesApiService {
         @Query("query") query: String,
         @Query("api_key") apiKey: String = API_KEY,
     ): MoviesResponse
-
-    @GET("movie/{id}?")
-    suspend fun getMovieDetails(
-        @Path("id") id: Int,
-        @Query("api_key") apiKey: String = API_KEY
-    ): MovieDetailModel
 
 
 }

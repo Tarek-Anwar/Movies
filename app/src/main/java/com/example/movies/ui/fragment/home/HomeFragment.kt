@@ -6,13 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movies.databinding.FragmentHomeBinding
+import com.example.movies.ui.activities.MainViewModel
 import com.example.movies.ui.fragment.adapter.MainPagingAadapter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -27,10 +31,9 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
-   //private val mainAdapter by lazy { MainPagingAadapter() }
-    private var mainAdapter : MainPagingAadapter? = MainPagingAadapter()
+    private val mainAdapter by lazy { MainPagingAadapter() }
     private lateinit var recyclerView: RecyclerView
-
+    private val mainViewModel : MainViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,14 +43,6 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    private fun getNumberSpanCount() : Int{
-       return when(resources.configuration.orientation){
-            Configuration.ORIENTATION_LANDSCAPE ->  4
-            else -> 2
-        }
-
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -55,9 +50,7 @@ class HomeFragment : Fragment() {
         setupObservers()
         handelSelectedTab()
         setupListeners()
-
         handelGetMovies(viewModel.selectedTabPosition.value)
-
     }
 
     private fun setupListeners() {
@@ -66,8 +59,8 @@ class HomeFragment : Fragment() {
             override fun onTabSelected(p0: TabLayout.Tab?) {
                 p0?.let {
                     viewModel.saveSelectedTabPosition(it.position)
+                    setNullAdapter()
                     handelGetMovies(p0.position)
-                    handelAdapter()
                 }
             }
 
@@ -76,11 +69,17 @@ class HomeFragment : Fragment() {
         })
     }
 
+    private fun setNullAdapter() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainAdapter.submitData(PagingData.empty())
+        }
+    }
+
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch{
             viewModel.moviesList.collectLatest { pagingData ->
                 handleResult()
-                mainAdapter?.submitData(pagingData)
+                mainAdapter.submitData(pagingData)
             }
         }
     }
@@ -89,18 +88,14 @@ class HomeFragment : Fragment() {
         viewModel.moviesType.trySend(position)
     }
 
-    private fun handelAdapter(){
-        mainAdapter = null
-        mainAdapter = MainPagingAadapter()
-        recyclerView.adapter = mainAdapter
-        mainAdapter?.onItemClick = {
-            navigateToDetailFragment(it.id)
-        }
-    }
     private fun initRecyclerView() {
         recyclerView = binding.moviesHomeRv
         recyclerView.adapter = mainAdapter
         recyclerView.layoutManager = GridLayoutManager(requireContext(), getNumberSpanCount())
+        mainAdapter.onItemClick = {
+            navigateToDetailFragment()
+            mainViewModel.setMovieDetail(it)
+        }
     }
 
     private fun handelSelectedTab() {
@@ -112,7 +107,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun handleResult() {
-        mainAdapter?.addLoadStateListener { loadState ->
+        mainAdapter.addLoadStateListener { loadState ->
             when (loadState.refresh) {
                 is LoadState.Loading -> setProgressBarVisible()
                 is LoadState.NotLoading -> setRecyclerViewVisible()
@@ -121,8 +116,8 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun navigateToDetailFragment(id: Int) {
-        val action = HomeFragmentDirections.actionMainFragmentToMovieDetailsFragment(id)
+    private fun navigateToDetailFragment() {
+        val action = HomeFragmentDirections.actionMainFragmentToMovieDetailsFragment()
         Navigation.findNavController(requireView()).navigate(action)
     }
 
@@ -150,5 +145,17 @@ class HomeFragment : Fragment() {
         binding.errorTextMain.text = error
     }
 
+
+    private fun getNumberSpanCount() : Int{
+        return when(resources.configuration.orientation){
+            Configuration.ORIENTATION_LANDSCAPE ->  4
+            else -> 2
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 
 }

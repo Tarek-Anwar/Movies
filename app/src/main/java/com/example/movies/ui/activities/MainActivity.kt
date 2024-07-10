@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.os.Build
 import android.os.Bundle
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -19,9 +20,10 @@ class MainActivity : AppCompatActivity() {
     private var splashScreen: SplashScreen? = null
     private val shouldAvoidSplashScreen = Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
     private var dismissSplash = false
+    val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-       if (shouldAvoidSplashScreen) setTheme(R.style.Theme_Movies) else {
+        if (shouldAvoidSplashScreen) setTheme(R.style.Theme_Movies) else {
             splashScreen = initSplashScreen()
         }
         super.onCreate(savedInstanceState)

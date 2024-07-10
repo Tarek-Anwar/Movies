@@ -68,9 +68,7 @@ class RemoteMoviesPagingSource(
                 apiService.searchMovies(currentPage, query = query).movies
             }
 
-
             //moviesDao.insertMovies(moviesList.toList())
-
 
             val nextPage: Int? =
                 if (moviesList.isEmpty()) null else currentPage.plus(1)

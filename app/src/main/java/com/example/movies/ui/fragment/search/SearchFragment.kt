@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
@@ -17,6 +18,7 @@ import androidx.paging.log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.movies.R
 import com.example.movies.databinding.FragmentSearchBinding
+import com.example.movies.ui.activities.MainViewModel
 import com.example.movies.ui.fragment.adapter.SearchPagingAadapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -32,15 +34,14 @@ class SearchFragment : Fragment() {
     private var binding: FragmentSearchBinding? = null
     private var searchJob: Job? = null
     val viewModel: SearchViewModel by viewModels()
+    val mainViewModel : MainViewModel by activityViewModels()
     private val searchAdapter by lazy { SearchPagingAadapter() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
-        moviesObserver()
-
         return binding!!.root
     }
 
@@ -48,6 +49,7 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initRecyclerView()
+        moviesObserver()
         listenerEditText()
         handelBackPressed()
 
@@ -108,11 +110,12 @@ class SearchFragment : Fragment() {
         binding?.searchMovieRv?.layoutManager = LinearLayoutManager(requireContext())
         if (searchAdapter.itemCount > 0) setRecyclerViewVisible()
         searchAdapter.onItemClick = {
-            navigateToDetailFragment(it.id)
+            navigateToDetailFragment()
+            mainViewModel.setMovieDetail(it)
         }
     }
-    private fun navigateToDetailFragment(id: Int) {
-        val action = SearchFragmentDirections.actionSearchFragmentToMovieDetailsFragment(id)
+    private fun navigateToDetailFragment() {
+        val action = SearchFragmentDirections.actionSearchFragmentToMovieDetailsFragment()
         Navigation.findNavController(requireView()).navigate(action)
     }
     private fun setRecyclerViewVisible() {

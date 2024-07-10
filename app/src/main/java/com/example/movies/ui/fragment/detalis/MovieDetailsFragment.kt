@@ -5,35 +5,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import coil.load
 import com.example.movies.R
 import com.example.movies.data.util.IMAGE_BASE_URL
 import com.example.movies.databinding.FragmentMovieDetailsBinding
-import com.example.movies.domain.entity.MovieDetailModel
+import com.example.movies.domain.entity.MovieModel
+import com.example.movies.ui.activities.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlin.math.round
 
 
 @AndroidEntryPoint
 class MovieDetailsFragment : Fragment() {
     private var binding: FragmentMovieDetailsBinding? = null
-    private val viewModel: MovieDetailsViewModel by viewModels()
-    private val args: MovieDetailsFragmentArgs by navArgs()
+    private val mainViewModel : MainViewModel by activityViewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMovieDetailsBinding.inflate(inflater, container, false)
-        viewModel.getMovieDetail(args.id)
         return binding!!.root
     }
 
@@ -50,11 +46,11 @@ class MovieDetailsFragment : Fragment() {
         }
     }
 
-    private fun setData(movie: MovieDetailModel) {
+    private fun setData(movie: MovieModel) {
         binding!!.overviewMovieTv.text = movie.overview
         binding!!.releaseDateTv.text = movie.releaseDate
         binding!!.titleMovieTv.text = movie.title
-        binding!!.adultMovieTv.text = movie.isAdult.toString()
+        binding!!.adultMovieTv.text = movie.adult.toString()
         binding!!.rateMovie.text = "%.1f".format(movie.voteAverage)
         binding!!.originalLanguageMovie.text = movie.originalLanguage
         binding!!.backdropMovieImg.load(IMAGE_BASE_URL + movie.backdropPath) {
@@ -73,10 +69,9 @@ class MovieDetailsFragment : Fragment() {
 
     private fun movieDetailsObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.movieModelXStateFlow.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
-                .collectLatest {
-                    setData(it)
-                }
+            mainViewModel.movieModelStateFlow.collectLatest {
+                setData(it!!)
+            }
         }
     }
 
