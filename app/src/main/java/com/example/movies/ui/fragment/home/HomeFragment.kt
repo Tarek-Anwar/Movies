@@ -19,11 +19,8 @@ import com.example.movies.ui.activities.MainViewModel
 import com.example.movies.ui.fragment.adapter.MainPagingAadapter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -33,7 +30,7 @@ class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
     private val mainAdapter by lazy { MainPagingAadapter() }
     private lateinit var recyclerView: RecyclerView
-    private val mainViewModel : MainViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,6 +45,7 @@ class HomeFragment : Fragment() {
 
         initRecyclerView()
         setupObservers()
+        handleResult()
         handelSelectedTab()
         setupListeners()
         handelGetMovies(viewModel.selectedTabPosition.value)
@@ -76,9 +74,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewLifecycleOwner.lifecycleScope.launch{
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.moviesList.collectLatest { pagingData ->
-                handleResult()
                 mainAdapter.submitData(pagingData)
             }
         }
@@ -92,6 +89,9 @@ class HomeFragment : Fragment() {
         recyclerView = binding.moviesHomeRv
         recyclerView.adapter = mainAdapter
         recyclerView.layoutManager = GridLayoutManager(requireContext(), getNumberSpanCount())
+        if (recyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE && !recyclerView.isComputingLayout) {
+            mainAdapter.notifyDataSetChanged()
+        }
         mainAdapter.onItemClick = {
             navigateToDetailFragment()
             mainViewModel.setMovieDetail(it)
@@ -146,9 +146,9 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun getNumberSpanCount() : Int{
-        return when(resources.configuration.orientation){
-            Configuration.ORIENTATION_LANDSCAPE ->  4
+    private fun getNumberSpanCount(): Int {
+        return when (resources.configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> 4
             else -> 2
         }
     }

@@ -40,23 +40,21 @@ class RemoteMoviesPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieModel> {
         return try {
             val currentPage = params.key ?: 1
+            params.loadSize
             val moviesList = if (query.isEmpty()) {
                 when (moviesType) {
-                    MoviesType.POPULAR -> apiService.getMoviesWithCategory(
-                        "popular",
-                        currentPage
-                    ).movies
-
                     MoviesType.TOP_RATED -> apiService.getMoviesWithCategory(
                         "top_rated",
                         currentPage
                     ).movies
-
+                    MoviesType.POPULAR -> apiService.getMoviesWithCategory(
+                        "popular",
+                        currentPage
+                    ).movies
                     MoviesType.UPCOMING -> apiService.getMoviesWithCategory(
                         "upcoming",
                         currentPage
                     ).movies
-
                     MoviesType.NONE -> {
                         throw IllegalArgumentException(
                             "Parameter MoviesType Not passed",
@@ -68,7 +66,10 @@ class RemoteMoviesPagingSource(
                 apiService.searchMovies(currentPage, query = query).movies
             }
 
-            //moviesDao.insertMovies(moviesList.toList())
+            if(currentPage==1) {
+                moviesDao.clearMovies()
+            }
+            moviesDao.insertMovies(moviesList)
 
             val nextPage: Int? =
                 if (moviesList.isEmpty()) null else currentPage.plus(1)
